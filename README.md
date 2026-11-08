@@ -181,6 +181,7 @@ Build the image and run the gateway in a container instead of `python3 gateway.p
 ```sh
 docker build -t mistral-gateway .
 docker run -d --name mistral-gateway \
+  --restart unless-stopped \
   -p 8788:8788 \
   -e VIBE_KEY=your-vibe-key \
   -v mistral-gateway-state:/app \
@@ -192,6 +193,8 @@ Or use the included `docker-compose.yml`, filling in the placeholders under `env
 ```sh
 docker compose up -d --build
 ```
+
+**Auto-start.** `restart: unless-stopped` (compose) and `--restart unless-stopped` (`docker run`) start the container whenever the Docker daemon starts: host reboot, Docker Desktop launch, or `systemctl restart docker`. It stays stopped if you ran `docker stop mistral-gateway` yourself; use `--restart always` / `restart: always` to bring it back anyway. For a container created earlier without the flag, run `docker update --restart unless-stopped mistral-gateway`; with compose, `docker compose up -d` reconciles the policy. On Linux the daemon must be enabled at boot (`sudo systemctl enable --now docker`); on Docker Desktop enable "Start Docker Desktop when you sign in".
 
 **Required and optional keys.** `VIBE_KEY` is required, `GATEWAY_KEY` is optional, and `STUDIO_API_KEY` is the optional fallback. The container listens on `0.0.0.0` inside itself, and the gateway only answers a non-loopback `Host` header when `GATEWAY_KEY` is set — clients must send it as `Authorization: Bearer <key>`.
 

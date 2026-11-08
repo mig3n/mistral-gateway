@@ -4,10 +4,12 @@
 #   docker build -t mistral-gateway .
 # Run (state persists in the named volume mounted over /app):
 #   docker run -d --name mistral-gateway \
+#     --restart unless-stopped \
 #     -p 8788:8788 \
 #     -e VIBE_KEY=your-vibe-key \
 #     -v mistral-gateway-state:/app \
 #     mistral-gateway
+# --restart unless-stopped starts the container with Docker.
 # GATEWAY_KEY is optional: if omitted, docker-entrypoint.sh generates a strong
 # random key, saves it to /app/gateway.key in the state volume, and prints it
 # once in the logs on first start.

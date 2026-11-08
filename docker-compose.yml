@@ -1,0 +1,40 @@
+# mistral-gateway in a container.
+#
+# Usage:
+#   docker compose up -d --build
+# then point your client at http://localhost:8788/v1 with GATEWAY_KEY as the
+# API key. Stop it with `docker compose down` (add -v to also drop the state
+# volume).
+services:
+  gateway:
+    build: .
+    image: mistral-gateway
+    restart: unless-stopped
+    ports:
+      - "8788:8788"
+    environment:
+      # REQUIRED: your Mistral Vibe plan key (from `vibe --setup`, or
+      # https://chat.mistral.ai/code/extensions > Advanced > Vibe API Key).
+      # VIBE_KEY: your-vibe-key
+      # Optional: if omitted, the entrypoint generates a random key, saves it
+      # to /app/gateway.key in the state volume, and prints it once in the
+      # container logs. Find it with:
+      #   docker compose logs gateway | grep GATEWAY_KEY
+      # It persists across restarts, so clients keep working. Setting it
+      # explicitly still works and is preferred for reproducibility.
+      # Clients send it as `Authorization: Bearer <key>`.
+      # GATEWAY_KEY: pick-a-long-random-string
+      # Optional pay-as-you-go fallback key.
+      # STUDIO_API_KEY: your-studio-key
+      # Optional overrides; the values below are already the image defaults.
+      PORT: "8788"
+      BIND: 0.0.0.0
+      LOG_LEVEL: INFO
+    volumes:
+      # The gateway writes its state (pool_state.json, usage.db) next to
+      # gateway.py, so the named volume mounts over /app. A fresh empty volume
+      # is auto-populated with gateway.py from the image.
+      - mistral-gateway-state:/app
+
+volumes:
+  mistral-gateway-state:

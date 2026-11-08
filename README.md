@@ -50,7 +50,7 @@ Requirements: Python 3.10+ and a Mistral Vibe plan with coding included (Pro, Te
    python3 gateway.py
    ```
 
-   It runs the same on Linux, macOS and Windows (on Windows the command is usually `py gateway.py`). Keep the terminal open while you use it, or see [Run it as a service](#run-it-as-a-service-linux-optional) on Linux.
+   It runs the same on Linux, macOS and Windows (on Windows the command is usually `py gateway.py`). Keep the terminal open while you use it, or run it as a service on Linux ([Run it as a service](#run-it-as-a-service-linux-optional)) or in a container ([Run it in Docker](#run-it-in-docker-optional)).
 
    The log shows your plan name when the key works, and lists `studio` too if you added one:
 
@@ -161,7 +161,7 @@ cd mistral-gateway
 git pull
 ```
 
-Then restart the gateway (`systemctl --user restart mistral-gateway` if you run it as a service). Your `gateway.env` and `usage.db` are not touched by the update.
+Then restart the gateway (`systemctl --user restart mistral-gateway` if you run it as a service). Your `gateway.env` and `usage.db` are not touched by the update. If you run it in Docker instead, update with `docker compose down -v && docker compose up -d --build` — the script lives in the state volume, so this replaces code and state at once; see [Run it in Docker](#run-it-in-docker-optional) for what the `-v` reset means for the generated key.
 
 ### Run it as a service (Linux, optional)
 
@@ -173,6 +173,40 @@ systemctl --user daemon-reload
 systemctl --user enable --now mistral-gateway
 journalctl --user -u mistral-gateway -f
 ```
+
+### Run it in Docker (optional)
+
+Build the image and run the gateway in a container instead of `python3 gateway.py`. The image is `python:3.12-slim` with nothing but the script and a non-root user — the gateway only needs the standard library.
+
+```sh
+docker build -t mistral-gateway .
+docker run -d --name mistral-gateway \
+  -p 8788:8788 \
+  -e VIBE_KEY=your-vibe-key \
+  -v mistral-gateway-state:/app \
+  mistral-gateway
+```
+
+Or use the included `docker-compose.yml`, filling in the placeholders under `environment:`:
+
+```sh
+docker compose up -d --build
+```
+
+**Required and optional keys.** `VIBE_KEY` is required, `GATEWAY_KEY` is optional, and `STUDIO_API_KEY` is the optional fallback. The container listens on `0.0.0.0` inside itself, and the gateway only answers a non-loopback `Host` header when `GATEWAY_KEY` is set — clients must send it as `Authorization: Bearer <key>`.
+
+**GATEWAY_KEY is auto-generated if you don't set it.** On first start the container generates a strong random key, saves it to `/app/gateway.key` in the state volume, and prints it once in the logs. Retrieve it with:
+
+```sh
+docker logs mistral-gateway | grep GATEWAY_KEY        # docker run
+docker compose logs gateway | grep GATEWAY_KEY        # docker compose
+```
+
+The key persists across restarts (it lives in the state volume), so your clients keep working. Setting `GATEWAY_KEY` explicitly still works and is preferred for reproducibility — pass `-e GATEWAY_KEY=...` to `docker run`, or uncomment the placeholder under `environment:` in `docker-compose.yml`.
+
+**State.** The gateway writes `pool_state.json` and `usage.db` next to `gateway.py`, so the named volume is mounted over `/app` and keeps that state across restarts. Because the volume also holds a copy of `gateway.py`, update with `docker compose down -v && docker compose up -d --build` so the new script replaces the copy in the volume. Note that `-v` also clears usage history and the auto-generated gateway key, so if clients must keep working unchanged, set `GATEWAY_KEY` explicitly instead of relying on the generated one.
+
+> The same warning as everywhere in this project applies: this is a single-user, personal-use gateway. Only you should be able to reach it. Do not publish the port publicly or put it behind a public domain, and do not share access (see [Terms of service](#terms-of-service)).
 
 ## Models
 

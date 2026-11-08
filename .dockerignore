@@ -1,0 +1,13 @@
+.git/
+gateway.env
+gateway.env.example
+pool_state.json
+pool_state.*.tmp
+usage.db*
+__pycache__/
+*.pyc
+assets/
+CHANGELOG.md
+README.md
+LICENSE
+mistral-gateway.service.example

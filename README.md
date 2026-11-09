@@ -268,6 +268,10 @@ Endpoints: `/v1/chat/completions`, `/v1/responses`, `/v1/models`, `/health`, `/p
 
 Mistral's Responses API keeps no history, so clients have to send the whole conversation each time.
 
+## Credits
+
+Based on [mistral-gateway](https://github.com/Classic298/mistral-gateway) — the initial project this fork builds on.
+
 ## Terms of service
 
 Checked against the [Mistral AI Terms of Service for EU consumers](https://legal.mistral.ai/terms/eu-consumers-terms-of-service) (effective August 7, 2026) and the [Mistral AI Commercial Terms of Service](https://legal.mistral.ai/terms/commercial-terms-of-service) (effective August 5, 2026). Consumers outside the EU have [separate terms](https://legal.mistral.ai/terms). This section is the author's reading of those documents and is **not legal advice**.

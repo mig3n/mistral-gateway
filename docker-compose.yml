@@ -13,7 +13,7 @@ services:
     # after a manual `docker stop`.
     restart: unless-stopped
     ports:
-      - "8788:8788"
+      - "127.0.0.1:8788:8788"
     environment:
       # REQUIRED: your Mistral Vibe plan key (from `vibe --setup`, or
       # https://chat.mistral.ai/code/extensions > Advanced > Vibe API Key).

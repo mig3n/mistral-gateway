@@ -24,13 +24,13 @@ elif [ -f /app/gateway.key ]; then
 else
     GATEWAY_KEY="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
     if printf '%s\n' "$GATEWAY_KEY" > /app/gateway.key 2>/dev/null; then
-        echo "GATEWAY_KEY=$GATEWAY_KEY generated and saved to /app/gateway.key"
+        echo "GATEWAY_KEY generated and saved to /app/gateway.key (retrieve with: docker exec mistral-gateway cat /app/gateway.key)"
     else
         echo "WARNING: could not write /app/gateway.key (volume missing or not writable); key will not persist across restarts."
         echo "GATEWAY_KEY=$GATEWAY_KEY generated (not persisted)"
     fi
     echo "Hint: your client must send this key as 'Authorization: Bearer <key>'."
-    echo "You can read it again later from the container logs (docker logs mistral-gateway / docker compose logs gateway)."
+    echo "Retrieve it with: docker exec mistral-gateway cat /app/gateway.key"
 fi
 
 export GATEWAY_KEY

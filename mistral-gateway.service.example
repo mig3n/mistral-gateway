@@ -3,6 +3,8 @@ Description=Mistral Vibe gateway (OpenAI-compatible local proxy)
 
 [Service]
 Type=simple
+User=mistral-gw
+Group=mistral-gw
 WorkingDirectory=%h/mistral-gateway
 ExecStart=/usr/bin/python3 %h/mistral-gateway/gateway.py
 Environment="BIND=127.0.0.1"

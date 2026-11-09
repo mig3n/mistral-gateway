@@ -165,6 +165,14 @@ Then restart the gateway (`systemctl --user restart mistral-gateway` if you run 
 
 ### Run it as a service (Linux, optional)
 
+The service runs the gateway under a dedicated, unprivileged user instead of your own account. Create it before installing the service, and keep the secret files readable only by you (the service reads `~/.vibe/.env` from your home directory, or `gateway.env` from the clone):
+
+```sh
+sudo useradd --system --no-create-home --shell /usr/sbin/nologin mistral-gw
+chmod 600 gateway.env
+chmod 600 ~/.vibe/.env
+```
+
 ```sh
 mkdir -p ~/.config/systemd/user
 cp mistral-gateway.service.example ~/.config/systemd/user/mistral-gateway.service
